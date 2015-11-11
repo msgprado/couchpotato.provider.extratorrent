@@ -16,11 +16,13 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
         'login': '',
         'login_check': '',
         'detail': 'http://extratorrent.cc/torrent/%s',
-        'search': 'http://extratorrent.cc/search/?search=%s&new=1&x=0&y=0',
+        'search': 'http://extratorrent.cc/search/?new=1&search=%s&s_cat=4',
         'download': 'http://extratorrent.cc/download%s',
     }
+	
+    cat_ids = [(['720p'], ['720p']),(['1080p'], ['1080p']),(['brrip'], ['brrip']),(['dvdrip'], ['dvdrip']),]
 
-    http_time_between_calls = 1 #seconds
+    http_time_between_calls = 2 #seconds
 	
 #    def search(self, movie, quality):
 #
@@ -32,7 +34,8 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
     def _searchOnTitle(self, title, movie, quality, results):
 
         #url = self.urls['search'] % tryUrlencode('%s' % (title.replace(':', '')))
-        url = self.urls['search'] % tryUrlencode('%s %s' % (title.replace(':', ''), movie['info']['year']))
+        cat_ids = self.getCatId(quality)        
+        url = self.urls['search'] % tryUrlencode('%s %s %s' % (title.replace(':', ''), movie['info']['year'], cat_ids)).replace('%5B%27','').replace('%27%5D','')
         log.debug('>>>> extratorrent url %s', (url))		
         #print url
 
@@ -61,7 +64,7 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
                     #log.debug('>>>id %s', (torrent_id))
                     #log.debug('>>>title %s', (torrent_title))
                     #log.debug('>>> size %s', (torrent_size))
-                    #log.debug('>>> torrent_seeders %s', (torrent_seeders))
+                    log.debug('>>> torrent_download %s', (torrent_download))
 					
 
                     results.append({
