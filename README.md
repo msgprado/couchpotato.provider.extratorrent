@@ -9,7 +9,7 @@ How install this custom provider
 
 3. copy that two .py files in extratorrent folder
 
-4. reboot couchpotato or if you wish reboot the system
+4. reboot couchpotato or if you wish reboot your system
  
 
 Notice: this provider will show up with YTS icon in couchpotato, don´t worry.
