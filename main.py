@@ -4,6 +4,7 @@ from couchpotato.core.logger import CPLog
 from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
 from bs4 import BeautifulSoup
+import urllib2
 
 import traceback
 
@@ -17,7 +18,8 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
         'login_check': '',
         'detail': 'http://extratorrent.cc/torrent/%s',
         'search': 'http://extratorrent.cc/search/?new=1&search=%s&s_cat=4',
-        'download': 'http://extratorrent.cc/download%s',
+#        'download': 'http://extratorrent.cc/download%s',
+        'download': 'http://torrage.top/torrent/%s.torrent',
     }
 	
     cat_ids = [(['720p'], ['720p']),(['1080p'], ['1080p']),(['brrip'], ['brrip']),(['dvdrip'], ['dvdrip']),]
@@ -66,11 +68,23 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
                     #log.debug('>>> size %s', (torrent_size))
                     log.debug('>>> torrent_download %s', (torrent_download))
 					
+					#down = self.urls['download'] % torrent_download
+                    #r = urllib2.Request(down)
+                    #handler = urllib2.urlopen(r)
+                    #link_download_torrent = handler.headers.getheader['location']
+                    #log.debug('link %s' % (link_download_torrent))
+                    url_detail = self.urls['detail'] % torrent_id
+                    data_detail = self.getHTMLData(url_detail)
+                    if data_detail:
+                        html = BeautifulSoup(data_detail)
+                        hash = html.find_all('td', attrs = {'class' : 'tabledata0'})[1].contents[0]
+                        log.debug('>>> torrent_hash %s', (hash))
+                        
 
                     results.append({
                        'id': torrent_id,
                        'name': torrent_title.replace('torrent', ''),
-                       'url': self.urls['download'] % torrent_download,
+                       'url': self.urls['download'] % hash,
                        'detail_url': self.urls['detail'] % torrent_id,
                        'size': torrent_size,
                        'seeders': torrent_seeders if torrent_seeders else 0,
