@@ -1,5 +1,5 @@
 # couchpotato.provider.extratorrent
-A custom torrent provider for couchpotato for Kodi. I´m not a python programmer, but it works.
+A custom couchpotato torrent provider for Kodi. I´m not a python programmer, but it works.
 
 How install this custom provider
 
