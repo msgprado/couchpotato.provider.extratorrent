@@ -18,8 +18,8 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
         'login_check': '',
         'detail': 'http://extratorrent.cc/torrent/%s',
         'search': 'http://extratorrent.cc/search/?new=1&search=%s&s_cat=4',
-#        'download': 'http://extratorrent.cc/download%s',
-        'download': 'http://torrage.top/torrent/%s.torrent',
+ #       'download': 'http://extratorrent.cc/download%s',
+        'download': 'http://torrasave.top/torrent/%s.torrent',
     }
 	
     cat_ids = [(['720p'], ['720p']),(['1080p'], ['1080p']),(['brrip'], ['brrip']),(['dvdrip'], ['dvdrip']),]
@@ -37,7 +37,7 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
 
         #url = self.urls['search'] % tryUrlencode('%s' % (title.replace(':', '')))
         cat_ids = self.getCatId(quality)        
-        url = self.urls['search'] % tryUrlencode('%s %s %s' % (title.replace(':', ''), movie['info']['year'], cat_ids)).replace('%5B%27','').replace('%27%5D','')
+        url = self.urls['search'] % tryUrlencode('%s %s' % (title.replace(':', ''), movie['info']['year'])).replace('%5B%27','').replace('%27%5D','')
         log.debug('>>>> extratorrent url %s', (url))		
         #print url
 
@@ -47,38 +47,42 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
             try:
                 resultsTable = html.find('table', attrs = {'class' : 'tl'})
                 if resultsTable is None:
-                   log.debug('>>>> extratorrent NADA ENCONTRADO', (url))
+                   log.debug('>>>> extratorrent nothing found', (url))
                    return
 
-                #log.debug('result table %s', (resultsTable) )
+                log.debug('result table %s', (resultsTable) )
                 entries = resultsTable.find_all('tr')
-                #log.debug('>>> result %s', (entries))
+                log.debug('>>> result %s', (entries))
                 
                 for result in entries[2:]:
-                    torrent_download = result.find_all('td')[0].find('a')['href'].replace('/torrent_download', '')
+                    #torrent_download = result.find_all('td')[0].find('a')['href'].replace('/torrent_download', '')
                     torrent_split = result.find_all('td')[0].find('a')['href'].split('/') #algum metodo retorna nada
                     torrent_id = torrent_split[2] #algum metodo retorna nada
                     torrent_title = result.find_all('td')[0].find('a')['title'].replace('Download ', '')					
-                    torrent_size = self.parseSize(result.find_all('td')[3].contents[0])
-                    torrent_seeders = tryInt(result.find_all('td')[4].string)
-                    torrent_leechers =  tryInt(result.find_all('td')[5].string)
+                    torrent_size = self.parseSize(result.find_all('td')[4].contents[0])
+                    torrent_seeders = tryInt(result.find_all('td')[5].string)
+                    torrent_leechers =  tryInt(result.find_all('td')[6].string)
                     imdb_id = getImdb(torrent_title, check_inside = True)
-                    #log.debug('>>>id %s', (torrent_id))
-                    #log.debug('>>>title %s', (torrent_title))
-                    #log.debug('>>> size %s', (torrent_size))
-                    log.debug('>>> torrent_download %s', (torrent_download))
+                    log.debug('extratorrent >>> id %s', (torrent_id))
+                    log.debug('extratorrent >>> title %s',(torrent_title))
+                    log.debug('extratorrent >>> size %s', (torrent_size))
+                    #log.debug('extratorrent >>> torrent_download %s', (torrent_download))
 					
 					#down = self.urls['download'] % torrent_download
                     #r = urllib2.Request(down)
                     #handler = urllib2.urlopen(r)
                     #link_download_torrent = handler.headers.getheader['location']
-                    #log.debug('link %s' % (link_download_torrent))
+                    #log.debug('extratorrent link-download: %s' % (link_download_torrent))
                     url_detail = self.urls['detail'] % torrent_id
+                    log.debug('extratorrent >>> detail: %s', (url_detail))
+
                     data_detail = self.getHTMLData(url_detail)
                     if data_detail:
                         html = BeautifulSoup(data_detail)
                         hash = html.find_all('td', attrs = {'class' : 'tabledata0'})[1].contents[0]
-                        log.debug('>>> torrent_hash %s', (hash))
+                        log.debug('extratorrent >>> torrent_hash %s', (hash))
+                    else:
+                        log.debug('extratorrent >>> data_detail is empty')
                         
 
                     results.append({
@@ -93,7 +97,7 @@ class ExtraTorrent(TorrentProvider, MovieProvider):
                     })
 
             except:
-                log.error('Failed getting results from %s: %s', (self.getName(), traceback.format_exc()))
+                log.error('extratorrent >>> Failed getting results from %s: %s', (self.getName(), traceback.format_exc()))
 
 #    def getLoginParams(self):
 #        return tryUrlencode({
